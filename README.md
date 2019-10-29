@@ -1,4 +1,11 @@
-# goStatic [![Docker Pulls](https://img.shields.io/docker/pulls/pierrezemb/gostatic.svg?style=plastic)](https://hub.docker.com/r/pierrezemb/gostatic/) [![Docker Build](https://img.shields.io/docker/build/pierrezemb/gostatic.svg?style=plastic)](https://hub.docker.com/r/pierrezemb/gostatic/) [![Build Status](https://travis-ci.org/PierreZ/goStatic.svg?branch=master)](https://travis-ci.org/PierreZ/goStatic)  [![GoDoc](https://godoc.org/github.com/PierreZ/goStatic?status.svg)](https://godoc.org/github.com/PierreZ/goStatic)
+# goStatic [![Docker Pulls](https://img.shields.io/docker/pulls/mcgunn/gostatic.svg?style=plastic)](https://hub.docker.com/r/mcgunn/gostatic/) [![Docker Build](https://img.shields.io/docker/cloud/build/mcgunn/gostatic.svg?style=plastic)](https://hub.docker.com/r/pierrezemb/gostatic/) [![Docker Build](https://img.shields.io/docker/cloud/automated/mcgunn/gostatic.svg?style=plastic)](https://hub.docker.com/r/pierrezemb/gostatic/)
+
+Fork of the https://github.com/PierreZ/goStatic with added features:
+
+- custom app status in JSON format
+
+---
+
 A really small static web server for Docker
 
 ### The goal
@@ -39,7 +46,7 @@ docker run -d -p 80:8043 -v path/to/website:/srv/http --name goStatic pierrezemb
 
 ```
 ./goStatic --help
-Usage of /goStatic:
+Usage of /var/folders/rc/3fg8q9l17ws78t821gj37v400000gn/T/go-build985291627/b001/exe/goStatic:
   -append-header HeaderName:Value
         HTTP response header, specified as HeaderName:Value that should be added to all responses.
   -context string
@@ -49,7 +56,7 @@ Usage of /goStatic:
   -enable-basic-auth
         Enable basic auth. By default, password are randomly generated. Use --set-basic-auth to set it.
   -fallback string
-        Default fallback file. Either absolute for a specific asset (/index.html), or relative to recursively resolve (index.html).
+        Default fallback file. Either absolute for a specific asset (/index.html), or relative to recursively resolve (index.html)
   -password-length int
         Size of the randomized password (default 16)
   -path string
@@ -58,6 +65,13 @@ Usage of /goStatic:
         The listening port (default 8043)
   -set-basic-auth string
         Define the basic auth. Form must be user:password
+  -status-path string
+        Path to serve status JSON. Default is /status (default "/status")
+  -status-start-ts
+        Add start timestamp to the status
+  -status-vars string
+        <ENV_VAR>:<STATUS_VAR>,...
+
 ```
 
 #### Fallback

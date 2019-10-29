@@ -51,5 +51,6 @@ func StatusGetJson(s map[string]string) string {
 }
 
 func StatusHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, StatusText)
 }
