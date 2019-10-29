@@ -22,6 +22,9 @@ var (
 	setBasicAuth             = flag.String("set-basic-auth", "", "Define the basic auth. Form must be user:password")
 	defaultUsernameBasicAuth = flag.String("default-user-basic-auth", "gopher", "Define the user")
 	sizeRandom               = flag.Int("password-length", 16, "Size of the randomized password")
+	statusEnvConfig          = flag.String("status-vars", "", "<ENV_VAR>:<STATUS_VAR>,...")
+	statusPath               = flag.String("status-path", "/status", "Path to serve status JSON. Default is /status")
+	statusTimestamp          = flag.Bool("status-start-ts", false, "Add start timestamp to the status")
 
 	username string
 	password string
@@ -41,6 +44,9 @@ func parseHeaderFlag(headerFlag string) (string, string) {
 func main() {
 
 	flag.Parse()
+
+	// init status
+	StatusInit()
 
 	// sanity check
 	if len(*setBasicAuth) != 0 && !*basicAuth {
@@ -91,6 +97,10 @@ func main() {
 	}
 
 	http.Handle(pathPrefix, handler)
+
+	if *statusEnvConfig != "" || *statusTimestamp {
+		http.HandleFunc(*statusPath, StatusHandler)
+	}
 
 	log.Printf("Listening at 0.0.0.0%v %v...", port, pathPrefix)
 	log.Fatalln(http.ListenAndServe(port, nil))
