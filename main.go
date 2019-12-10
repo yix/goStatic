@@ -124,7 +124,7 @@ type LogEntry struct {
 	Status        int
 	ContentLen    int
 	UserAgent     string
-	LivenessProbe string
+	LivenessProbe string `json:",omitempty"`
 	Duration      time.Duration
 }
 
@@ -138,7 +138,7 @@ func (w *statusWriter) Log(entry LogEntry) {
 	if err != nil {
 		fmt.Printf("Failed to parse log entry %+v\n", entry)
 	}
-	fmt.Printf(string(buf))
+	fmt.Println(string(buf))
 }
 
 func (w *statusWriter) WriteHeader(status int) {
@@ -161,9 +161,13 @@ func LogHTTP(handler http.Handler) http.HandlerFunc {
 		sw := statusWriter{ResponseWriter: w}
 		handler.ServeHTTP(&sw, r)
 		duration := time.Now().Sub(start)
+		remoteAddr := r.RemoteAddr
+		if r.Header.Get("X-Forwarded-For") != "" {
+			remoteAddr = r.Header.Get("X-Forwarded-For")
+		}
 		sw.Log(LogEntry{
 			Host:          r.Host,
-			RemoteAddr:    r.RemoteAddr,
+			RemoteAddr:    remoteAddr,
 			Method:        r.Method,
 			RequestURI:    r.RequestURI,
 			Proto:         r.Proto,
