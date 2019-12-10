@@ -116,6 +116,7 @@ type statusWriter struct {
 }
 
 type LogEntry struct {
+	Timestamp     time.Time
 	Host          string
 	RemoteAddr    string
 	Method        string
@@ -166,6 +167,7 @@ func LogHTTP(handler http.Handler) http.HandlerFunc {
 			remoteAddr = r.Header.Get("X-Forwarded-For")
 		}
 		sw.Log(LogEntry{
+			Timestamp:     time.Now(),
 			Host:          r.Host,
 			RemoteAddr:    remoteAddr,
 			Method:        r.Method,
