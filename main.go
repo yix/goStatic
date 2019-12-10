@@ -4,11 +4,14 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var (
@@ -96,12 +99,79 @@ func main() {
 		}
 	}
 
-	http.Handle(pathPrefix, handler)
+	http.Handle(pathPrefix, LogHTTP(handler))
 
 	if *statusEnvConfig != "" || *statusTimestamp {
-		http.HandleFunc(*statusPath, StatusHandler)
+		http.Handle(*statusPath, LogHTTP(http.HandlerFunc(StatusHandler)))
 	}
 
 	log.Printf("Listening at 0.0.0.0%v %v...", port, pathPrefix)
 	log.Fatalln(http.ListenAndServe(port, nil))
+}
+
+type statusWriter struct {
+	http.ResponseWriter
+	status int
+	length int
+}
+
+type LogEntry struct {
+	Host          string
+	RemoteAddr    string
+	Method        string
+	RequestURI    string
+	Proto         string
+	Status        int
+	ContentLen    int
+	UserAgent     string
+	LivenessProbe string
+	Duration      time.Duration
+}
+
+func (w *statusWriter) Log(entry LogEntry) {
+	if (*statusEnvConfig != "" || *statusTimestamp) &&
+		entry.RequestURI == *statusPath &&
+		entry.LivenessProbe != "" {
+		return // do not log if this is a liveness probe to the `status` URI
+	}
+	buf, err := json.Marshal(entry)
+	if err != nil {
+		fmt.Printf("Failed to parse log entry %+v\n", entry)
+	}
+	fmt.Printf(string(buf))
+}
+
+func (w *statusWriter) WriteHeader(status int) {
+	w.status = status
+	w.ResponseWriter.WriteHeader(status)
+}
+
+func (w *statusWriter) Write(b []byte) (int, error) {
+	if w.status == 0 {
+		w.status = 200
+	}
+	n, err := w.ResponseWriter.Write(b)
+	w.length += n
+	return n, err
+}
+
+func LogHTTP(handler http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		sw := statusWriter{ResponseWriter: w}
+		handler.ServeHTTP(&sw, r)
+		duration := time.Now().Sub(start)
+		sw.Log(LogEntry{
+			Host:          r.Host,
+			RemoteAddr:    r.RemoteAddr,
+			Method:        r.Method,
+			RequestURI:    r.RequestURI,
+			Proto:         r.Proto,
+			Status:        sw.status,
+			ContentLen:    sw.length,
+			UserAgent:     r.Header.Get("User-Agent"),
+			LivenessProbe: r.Header.Get("Liveness-Probe"),
+			Duration:      duration,
+		})
+	}
 }

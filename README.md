@@ -46,7 +46,7 @@ docker run -d -p 80:8043 -v path/to/website:/srv/http --name goStatic pierrezemb
 
 ```
 ./goStatic --help
-Usage of /var/folders/rc/3fg8q9l17ws78t821gj37v400000gn/T/go-build985291627/b001/exe/goStatic:
+Usage of /goStatic:
   -append-header HeaderName:Value
         HTTP response header, specified as HeaderName:Value that should be added to all responses.
   -context string
