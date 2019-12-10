@@ -116,17 +116,17 @@ type statusWriter struct {
 }
 
 type LogEntry struct {
-	Timestamp     time.Time
-	Host          string
-	RemoteAddr    string
-	Method        string
-	RequestURI    string
-	Proto         string
-	Status        int
-	ContentLen    int
-	UserAgent     string
-	LivenessProbe string `json:",omitempty"`
-	Duration      time.Duration
+	Timestamp           time.Time
+	Host                string
+	RemoteAddr          string
+	Method              string
+	RequestURI          string
+	Proto               string
+	Status              int
+	ContentLen          int
+	UserAgent           string
+	LivenessProbe       string `json:",omitempty"`
+	DurationMicrosecond time.Duration
 }
 
 func (w *statusWriter) Log(entry LogEntry) {
@@ -167,17 +167,17 @@ func LogHTTP(handler http.Handler) http.HandlerFunc {
 			remoteAddr = r.Header.Get("X-Forwarded-For")
 		}
 		sw.Log(LogEntry{
-			Timestamp:     time.Now(),
-			Host:          r.Host,
-			RemoteAddr:    remoteAddr,
-			Method:        r.Method,
-			RequestURI:    r.RequestURI,
-			Proto:         r.Proto,
-			Status:        sw.status,
-			ContentLen:    sw.length,
-			UserAgent:     r.Header.Get("User-Agent"),
-			LivenessProbe: r.Header.Get("Liveness-Probe"),
-			Duration:      duration,
+			Timestamp:           time.Now(),
+			Host:                r.Host,
+			RemoteAddr:          remoteAddr,
+			Method:              r.Method,
+			RequestURI:          r.RequestURI,
+			Proto:               r.Proto,
+			Status:              sw.status,
+			ContentLen:          sw.length,
+			UserAgent:           r.Header.Get("User-Agent"),
+			LivenessProbe:       r.Header.Get("Liveness-Probe"),
+			DurationMicrosecond: duration,
 		})
 	}
 }

@@ -17,12 +17,12 @@ Yeah, decided to drop support of unsecured HTTPS. Two-years ago, when I started 
 
 ### Features
  * A fully static web server in 6MB
- * No frameworkw
+ * No framework
  * Web server build for Docker
  * Can generate certificate on his own
  * Light container
  * More security than official images (see below)
- * Log enabled
+ * Structured logging with basic stats
 
 ### Why?
 Because the official Golang image is wayyyy to big (around 1/2Gb as you can see below) and could be unsecure.
